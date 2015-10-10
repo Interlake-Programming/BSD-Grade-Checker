@@ -64,6 +64,10 @@ public class Login extends Activity implements View.OnClickListener {
     @Override
     public void onClick(View v) {
         if(v == loginButton){
+            if(stayLoggedIn.isChecked()){
+                settings.edit().putString("username",username);
+                settings.edit().putString("password",password);
+            }
             username = unameField.getText().toString();
             password = passwordField.getText().toString();
         }
