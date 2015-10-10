@@ -2,9 +2,9 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:weightSum="1"
-    android:baselineAligned="true">
+    android:baselineAligned="true"
+    android:orientation="vertical">
 
     <TextView
         android:layout_width="wrap_content"
@@ -20,7 +20,7 @@
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/editText" />
+        android:id="@+id/unameField" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -34,13 +34,13 @@
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/editText2" />
+        android:id="@+id/passwordField" />
 
     <CheckBox
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Keep Me Logged In"
-        android:id="@+id/checkBox"
+        android:id="@+id/keepMeLoggedIn"
         android:layout_gravity="center_horizontal"
         android:checked="false" />
 
@@ -48,6 +48,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Log In"
-        android:id="@+id/button"
+        android:id="@+id/loginButton"
         android:layout_gravity="center_horizontal" />
 </LinearLayout>

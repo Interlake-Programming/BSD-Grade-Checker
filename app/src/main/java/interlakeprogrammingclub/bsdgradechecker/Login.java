@@ -1,17 +1,42 @@
 package interlakeprogrammingclub.bsdgradechecker;
 
 import android.app.Activity;
+import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.EditText;
 
-public class Login extends Activity {
+public class Login extends Activity implements View.OnClickListener {
+
+    private String username;
+    private String password;
+
+    private EditText unameField;
+    private EditText passwordField;
+    private Button loginButton;
+    private CheckBox stayLoggedIn;
+
+    private SharedPreferences settings;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        //Initialize the views that we will use
+        unameField = (EditText) findViewById(R.id.unameField);
+        passwordField = (EditText) findViewById(R.id.passwordField);
+        loginButton = (Button) findViewById(R.id.loginButton);
+        stayLoggedIn = (CheckBox) findViewById(R.id.keepMeLoggedIn);
+
+        loginButton.setOnClickListener(this);
+
+        settings = getSharedPreferences("settings", MODE_PRIVATE);
     }
 
     @Override
@@ -34,5 +59,18 @@ public class Login extends Activity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onClick(View v) {
+        if(v == loginButton){
+            username = unameField.getText().toString();
+            password = passwordField.getText().toString();
+        }
+    }
+
+    //Not sure what to do here
+    public void login(String uname, String pass){
+        //Misc Behavior that we will figure out later
     }
 }
