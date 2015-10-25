@@ -2,12 +2,62 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+<<<<<<< HEAD
+    android:weightSum="1"
+    android:baselineAligned="true"
+    android:orientation="vertical">
+=======
     android:orientation="vertical"
     android:background="#6ffa51">
+>>>>>>> Branch
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+<<<<<<< HEAD
+        android:text="Username"
+        android:id="@+id/textView2"
+        android:textSize="30dp"
+        android:layout_gravity="center_horizontal"
+        android:paddingEnd="20dp"
+        android:paddingStart="20dp"
+        android:textColor="@color/material_blue_grey_950" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/unameField" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Password"
+        android:id="@+id/textView"
+        android:layout_gravity="center_horizontal"
+        android:textSize="30dp" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/passwordField" />
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Keep Me Logged In"
+        android:id="@+id/keepMeLoggedIn"
+        android:layout_gravity="center_horizontal"
+        android:checked="false" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Log In"
+        android:id="@+id/loginButton"
+        android:layout_gravity="center_horizontal" />
+</LinearLayout>
+=======
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:layout_centerInParent="true"
         android:orientation="vertical"
@@ -69,3 +119,4 @@
     </LinearLayout>
 
 </RelativeLayout>
+>>>>>>> Branch
