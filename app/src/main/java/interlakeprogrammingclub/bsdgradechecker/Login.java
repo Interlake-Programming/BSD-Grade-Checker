@@ -3,6 +3,7 @@ package interlakeprogrammingclub.bsdgradechecker;
 import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Menu;
@@ -76,5 +77,22 @@ public class Login extends Activity implements View.OnClickListener {
     //Not sure what to do here
     public void login(String uname, String pass){
         //Misc Behavior that we will figure out later
+    }
+
+    private class LoginProtocol extends AsyncTask<String,Integer,String>{
+        @Override
+        protected void onPreExecute(){
+            //Add a new view to show when it's loading hte grades?
+        }
+        @Override
+        protected String doInBackground(String... params) {
+            //We really need to figure out how to pull grades from aspen...
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String result){
+            //Idk man do something here
+        }
     }
 }

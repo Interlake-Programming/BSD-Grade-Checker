@@ -38,21 +38,24 @@
             android:layout_height="wrap_content"
             android:hint="Student ID"
             android:layout_margin="5dp"
-            android:textSize="10dp" />
+            android:textSize="10dp"
+            android:id="@+id/unamefield" />
         <EditText
             android:layout_width="171dp"
             android:layout_height="wrap_content"
             android:hint="Password"
             android:password="true"
             android:layout_margin="5dp"
-            android:textSize="10dp" />
+            android:textSize="10dp"
+            android:id="@+id/passwordfield" />
         <CheckBox
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Don't log me out"
             android:textSize="10dp"
             android:layout_margin="5dp"
-            android:checked="false" />
+            android:checked="false"
+            android:id="@+id/keepMeLoggedIn"/>
 
         <Button
             android:layout_width="match_parent"
@@ -61,7 +64,7 @@
             android:layout_margin="5dp"
             android:gravity="right"
             style="?android:attr/borderlessButtonStyle"
-            android:id="@+id/button"
+            android:id="@+id/loginButton"
             android:layout_below="@+id/linearLayout"
             android:layout_alignLeft="@+id/linearLayout"
             android:layout_alignStart="@+id/linearLayout" />
