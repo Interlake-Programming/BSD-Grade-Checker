@@ -12,7 +12,7 @@
         android:layout_centerInParent="true"
         android:orientation="vertical"
         android:background="#d2d2ca"
-        android:id="@+id/linearLayout">
+        android:id="@+id/loginForm">
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -39,7 +39,7 @@
             android:hint="Student ID"
             android:layout_margin="5dp"
             android:textSize="10dp"
-            android:id="@+id/unamefield" />
+            android:id="@+id/unameField" />
         <EditText
             android:layout_width="171dp"
             android:layout_height="wrap_content"
@@ -47,7 +47,7 @@
             android:password="true"
             android:layout_margin="5dp"
             android:textSize="10dp"
-            android:id="@+id/passwordfield" />
+            android:id="@+id/passwordField" />
         <CheckBox
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -70,5 +70,12 @@
             android:layout_alignStart="@+id/linearLayout" />
 
     </LinearLayout>
+
+    <ProgressBar
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/loginSpinner" />
+
 
 </RelativeLayout>

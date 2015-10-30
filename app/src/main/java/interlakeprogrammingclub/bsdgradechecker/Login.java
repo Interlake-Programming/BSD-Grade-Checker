@@ -2,6 +2,7 @@ package interlakeprogrammingclub.bsdgradechecker;
 
 import android.app.Activity;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -11,6 +12,8 @@ import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 
 public class Login extends Activity implements View.OnClickListener {
 
@@ -21,6 +24,8 @@ public class Login extends Activity implements View.OnClickListener {
     private EditText passwordField;
     private Button loginButton;
     private CheckBox stayLoggedIn;
+    private ProgressBar spinner;
+    private LinearLayout screen;
 
     private SharedPreferences settings;
 
@@ -34,8 +39,11 @@ public class Login extends Activity implements View.OnClickListener {
         passwordField = (EditText) findViewById(R.id.passwordField);
         loginButton = (Button) findViewById(R.id.loginButton);
         stayLoggedIn = (CheckBox) findViewById(R.id.keepMeLoggedIn);
+        spinner = (ProgressBar) findViewById(R.id.loginSpinner);
+        screen = (LinearLayout) findViewById(R.id.loginForm);
 
         loginButton.setOnClickListener(this);
+        spinner.setVisibility(View.GONE);
 
         settings = getSharedPreferences("settings", MODE_PRIVATE);
     }
@@ -82,7 +90,8 @@ public class Login extends Activity implements View.OnClickListener {
     private class LoginProtocol extends AsyncTask<String,Integer,String>{
         @Override
         protected void onPreExecute(){
-            //Add a new view to show when it's loading hte grades?
+            spinner.setVisibility(View.VISIBLE);
+            screen.setVisibility(View.GONE);
         }
         @Override
         protected String doInBackground(String... params) {
@@ -92,7 +101,8 @@ public class Login extends Activity implements View.OnClickListener {
 
         @Override
         protected void onPostExecute(String result){
-            //Idk man do something here
+            spinner.setVisibility(View.GONE);
+            startActivity(new Intent(Login.this, GradesViewerActivity.class));
         }
     }
 }

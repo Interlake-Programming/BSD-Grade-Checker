@@ -9,12 +9,12 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 
 public class GradesViewerActivity extends Activity {
-    //too lzay to do anythig here
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_grades_viewer);
-    }
 
+    }
 
 }
