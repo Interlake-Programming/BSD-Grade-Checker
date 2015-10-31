@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -14,6 +15,13 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+
+import org.jsoup.Connection;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+
+import java.io.IOException;
+
 
 public class Login extends Activity implements View.OnClickListener {
 
@@ -27,6 +35,8 @@ public class Login extends Activity implements View.OnClickListener {
     private ProgressBar spinner;
     private LinearLayout screen;
 
+    //Note: these shared preferences will probably be used for everything. That is because I think
+    //that this app will be small
     private SharedPreferences settings;
 
     @Override
@@ -79,12 +89,13 @@ public class Login extends Activity implements View.OnClickListener {
             }
             username = unameField.getText().toString();
             password = passwordField.getText().toString();
+            login(username,password);
         }
     }
 
     //Not sure what to do here
     public void login(String uname, String pass){
-        //Misc Behavior that we will figure out later
+        new LoginProtocol().execute();
     }
 
     private class LoginProtocol extends AsyncTask<String,Integer,String>{
@@ -95,7 +106,17 @@ public class Login extends Activity implements View.OnClickListener {
         }
         @Override
         protected String doInBackground(String... params) {
-            //We really need to figure out how to pull grades from aspen...
+            String html;
+            try {
+                Connection.Response res = Jsoup.connect("https://aspen.bsd405.org/aspen/logon.do")
+                        .data("username", "s-xuch", "password", "pewdiepieduck")
+                        .method(Connection.Method.POST)
+                        .execute();
+                Document doc = res.parse();
+            }
+            catch(IOException e){
+                Log.d("Exception", "couldn't connect?");
+            }
             return null;
         }
 
