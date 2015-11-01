@@ -118,22 +118,25 @@ public class Login extends Activity implements View.OnClickListener {
             String html;
             html = getHTML();
             try {
-                getCookie();
                 Document a = Jsoup.parse("https://aspen.bsd405.org/");
-                Connection con = Jsoup.connect("https://aspen.bsd405.org/aspen/logon.do").data("username","s-xuch","password","pewdiepieduck")
+                String buffer = getCookie();
+                String jsess = buffer.substring(buffer.indexOf("=") + 1, buffer.indexOf(";"));
+                Connection con = Jsoup.connect("https://aspen.bsd405.org/aspen/logon.do")
                         .method(Connection.Method.POST)
-                        .cookie("JSESSIONID","2BA68E361ED63F15B5F8A16EAF8E5924");
+                        .userAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.80 Safari/537.36")
+                        .cookie("JSESSIONID", buffer.substring(buffer.indexOf("=") + 1, buffer.indexOf(";")))
+                        .data("username", "s-xuch", "password", "pewdiepieduck");
                 Connection.Response res = con.execute();
+                Map<String, String> newCookies = res.cookies();
                 Document doc = res.parse();
             }
             catch(IOException e){
-                Log.d("Exception", "couldn't connect?");
+                Log.d("Exception", e.toString());
             }
             return null;
         }
 
         private String getCookie(){
-            String cookie = null;
             try {
                 HttpsURLConnection c = (HttpsURLConnection) (new URL("https://aspen.bsd405.org/")).openConnection();
                 c.setRequestMethod("GET");
@@ -142,12 +145,12 @@ public class Login extends Activity implements View.OnClickListener {
 
                 c.connect();
                 Map<String, List<String>> buffer = c.getHeaderFields();
-                cookie = buffer.get("Set-Cookie").get(0);
+                return buffer.get("Set-Cookie").get(0);
             }
             catch(Exception e){
                 Log.d("error", e.toString());
+                return null;
             }
-            return cookie;
         }
         private String getHTML(){
             try {
@@ -198,7 +201,8 @@ public class Login extends Activity implements View.OnClickListener {
         @Override
         protected void onPostExecute(String result){
             spinner.setVisibility(View.GONE);
-            startActivity(new Intent(Login.this, GradesViewerActivity.class));
+
+//            startActivity(new Intent(Login.this, GradesViewerActivity.class));
         }
     }
 
