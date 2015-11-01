@@ -24,7 +24,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
+import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -115,6 +118,7 @@ public class Login extends Activity implements View.OnClickListener {
             String html;
             html = getHTML();
             try {
+                getCookie();
                 Document a = Jsoup.parse("https://aspen.bsd405.org/");
                 Connection con = Jsoup.connect("https://aspen.bsd405.org/aspen/logon.do").data("username","s-xuch","password","pewdiepieduck")
                         .method(Connection.Method.POST)
@@ -128,6 +132,23 @@ public class Login extends Activity implements View.OnClickListener {
             return null;
         }
 
+        private String getCookie(){
+            String cookie;
+            try {
+                HttpsURLConnection c = (HttpsURLConnection) (new URL("https://aspen.bsd405.org/")).openConnection();
+                c.setRequestMethod("GET");
+                c.setDoInput(true);
+                c.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.80 Safari/537.36");
+
+                c.connect();
+                Map<String, List<String>> buffer = c.getHeaderFields();
+                Log.v("sdf","sdf");
+            }
+            catch(Exception e){
+                Log.d("error", e.toString());
+            }
+            return null;
+        }
         private String getHTML(){
             try {
                 String output = "org.apache.struts.taglib.html.TOKEN=8c2cc97dcf02931f630ed3f77486e26b&userEvent=930&userParam=&operationId=&deploymentId=x2sis&scrollX=0&scrollY=0&formFocusField=username&mobile=false&SSOLoginDone=&username=" + "s-xuch" + "&password=" + "pewdiepieduck";
@@ -138,7 +159,7 @@ public class Login extends Activity implements View.OnClickListener {
                 c.setDoInput(true);
                 c.setDoOutput(true);
                 c.setRequestMethod("POST");
-                c.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.99 Safari/537.36");
+                c.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.80 Safari/537.36");
                 c.setRequestProperty("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
                 c.setRequestProperty("Content-Length", Integer.toString(output.length()));
                 c.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
