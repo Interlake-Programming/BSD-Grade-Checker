@@ -19,6 +19,7 @@ import android.widget.ProgressBar;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -146,12 +147,15 @@ public class Login extends Activity implements View.OnClickListener {
                 Map<String, String> cookies = res.cookies();
                 String vb = doc.getElementsByAttributeValue("name", "org.apache.struts.taglib.html.TOKEN").first().attr("value");
                 con = Jsoup.connect("https://aspen.bsd405.org/aspen/logon.do")
-                        .userAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.80 Safari/537.36")
                         .method(Connection.Method.POST)
+                        .userAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.80 Safari/537.36")
                         .data("username", "s-xuch", "password", "pewdiepieduck")
-                        .data("org.apache.struts.taglib.html.TOKEN", doc.getElementsByAttributeValue("name", "org.apache.struts.taglib.html.TOKEN").first().attr("value"));
-                res = con.execute();
-                doc = res.parse();
+                        .cookies(cookies);
+                Elements inputs = doc.getElementsByClass("input");
+                for(int i = 0; i < inputs.size(); i++){
+                    con = con.data(inputs.get(i).attr("name"), inputs.get(i).attr("value"));
+                }
+                con.execute();
 
                 HttpsURLConnection c = (HttpsURLConnection) (new URL("https://aspen.bsd405.org/")).openConnection();
                 c.setRequestMethod("GET");
