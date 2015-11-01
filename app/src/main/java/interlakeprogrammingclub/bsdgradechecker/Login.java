@@ -138,6 +138,12 @@ public class Login extends Activity implements View.OnClickListener {
 
         private String getCookie(){
             try {
+                Connection con = Jsoup.connect("https://aspen.bsd405.org")
+                        .method(Connection.Method.GET)
+                        .userAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.80 Safari/537.36");
+                Connection.Response res = con.execute();
+                Document doc = res.parse();
+
                 HttpsURLConnection c = (HttpsURLConnection) (new URL("https://aspen.bsd405.org/")).openConnection();
                 c.setRequestMethod("GET");
                 c.setDoInput(true);
