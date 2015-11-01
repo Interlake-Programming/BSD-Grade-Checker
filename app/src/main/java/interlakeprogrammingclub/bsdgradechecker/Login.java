@@ -146,6 +146,7 @@ public class Login extends Activity implements View.OnClickListener {
                 Document doc = res.parse();
                 Map<String, String> cookies = res.cookies();
                 String vb = doc.getElementsByAttributeValue("name", "org.apache.struts.taglib.html.TOKEN").first().attr("value");
+                /*
                 con = Jsoup.connect("https://aspen.bsd405.org/aspen/logon.do")
                         .method(Connection.Method.POST)
                         .userAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.80 Safari/537.36")
@@ -156,15 +157,13 @@ public class Login extends Activity implements View.OnClickListener {
                     con = con.data(inputs.get(i).attr("name"), inputs.get(i).attr("value"));
                 }
                 con.execute();
+                */
 
-                HttpsURLConnection c = (HttpsURLConnection) (new URL("https://aspen.bsd405.org/")).openConnection();
-                c.setRequestMethod("GET");
-                c.setDoInput(true);
-                c.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.80 Safari/537.36");
+                HttpsURLConnection connection = (HttpsURLConnection) new URL("https://aspen.bsd405.org/aspen/logon.do").openConnection();
+                connection.setRequestMethod("POST");
+                
 
-                c.connect();
-                Map<String, List<String>> buffer = c.getHeaderFields();
-                return buffer.get("Set-Cookie").get(0);
+                return null;
             }
             catch(Exception e){
                 Log.d("error", e.toString());
