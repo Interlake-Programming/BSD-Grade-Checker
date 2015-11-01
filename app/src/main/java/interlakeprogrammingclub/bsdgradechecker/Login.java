@@ -138,13 +138,19 @@ public class Login extends Activity implements View.OnClickListener {
 
         private String getCookie(){
             try {
-                HttpsURLConnection c = (HttpsURLConnection) (new URL("https://aspen.bsd405.org/")).openConnection();
+                HttpsURLConnection c = (HttpsURLConnection) (new URL("https://aspen.bsd405.org/aspen/logon.do")).openConnection();
                 c.setRequestMethod("GET");
                 c.setDoInput(true);
                 c.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.80 Safari/537.36");
 
                 c.connect();
                 Map<String, List<String>> buffer = c.getHeaderFields();
+                String html = "";
+                BufferedReader read = new BufferedReader(new InputStreamReader(c.getInputStream()));
+                String b;
+                while((b = read.readLine()) != null){
+                    html += b;
+                }
                 return buffer.get("Set-Cookie").get(0);
             }
             catch(Exception e){
