@@ -138,11 +138,20 @@ public class Login extends Activity implements View.OnClickListener {
 
         private String getCookie(){
             try {
-                Connection con = Jsoup.connect("https://aspen.bsd405.org")
+                Connection con = Jsoup.connect("https://aspen.bsd405.org/aspen/logon.do")
                         .method(Connection.Method.GET)
                         .userAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.80 Safari/537.36");
                 Connection.Response res = con.execute();
                 Document doc = res.parse();
+                Map<String, String> cookies = res.cookies();
+                String vb = doc.getElementsByAttributeValue("name", "org.apache.struts.taglib.html.TOKEN").first().attr("value");
+                con = Jsoup.connect("https://aspen.bsd405.org/aspen/logon.do")
+                        .userAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.80 Safari/537.36")
+                        .method(Connection.Method.POST)
+                        .data("username", "s-xuch", "password", "pewdiepieduck")
+                        .data("org.apache.struts.taglib.html.TOKEN", doc.getElementsByAttributeValue("name", "org.apache.struts.taglib.html.TOKEN").first().attr("value"));
+                res = con.execute();
+                doc = res.parse();
 
                 HttpsURLConnection c = (HttpsURLConnection) (new URL("https://aspen.bsd405.org/")).openConnection();
                 c.setRequestMethod("GET");
