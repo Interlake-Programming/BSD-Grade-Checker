@@ -133,7 +133,7 @@ public class Login extends Activity implements View.OnClickListener {
         }
 
         private String getCookie(){
-            String cookie;
+            String cookie = null;
             try {
                 HttpsURLConnection c = (HttpsURLConnection) (new URL("https://aspen.bsd405.org/")).openConnection();
                 c.setRequestMethod("GET");
@@ -142,12 +142,12 @@ public class Login extends Activity implements View.OnClickListener {
 
                 c.connect();
                 Map<String, List<String>> buffer = c.getHeaderFields();
-                Log.v("sdf","sdf");
+                cookie = buffer.get("Set-Cookie").get(0);
             }
             catch(Exception e){
                 Log.d("error", e.toString());
             }
-            return null;
+            return cookie;
         }
         private String getHTML(){
             try {
