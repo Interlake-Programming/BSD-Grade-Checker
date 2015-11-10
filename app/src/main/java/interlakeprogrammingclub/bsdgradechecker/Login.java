@@ -116,20 +116,30 @@ public class Login extends Activity implements View.OnClickListener {
 
         @Override
         protected String doInBackground(String... params) {
-            String html;
-            html = getHTML();
             try {
-                Document a = Jsoup.parse("https://aspen.bsd405.org/");
-                String buffer = getCookie();
-                String jsess = buffer.substring(buffer.indexOf("=") + 1, buffer.indexOf(";"));
                 Connection con = Jsoup.connect("https://aspen.bsd405.org/aspen/logon.do")
+                        .method(Connection.Method.GET)
+                        .userAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.80 Safari/537.36");
+                Connection.Response res = con.execute();
+                Document doc = res.parse();
+                Map<String, String> cookies = res.cookies();
+                String vb = doc.getElementsByAttributeValue("name", "org.apache.struts.taglib.html.TOKEN").first().attr("value");
+
+                String jsess = doc.getElementsByAttributeValueMatching("name", "logonForm").first().attr("action");
+                jsess = jsess.substring(jsess.indexOf("=")+1);
+                con = Jsoup.connect("https://aspen.bsd405.org/aspen/logon.do")
                         .method(Connection.Method.POST)
                         .userAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.80 Safari/537.36")
-                        .cookie("JSESSIONID", buffer.substring(buffer.indexOf("=") + 1, buffer.indexOf(";")))
-                        .data("username", "s-xuch", "password", "pewdiepieduck");
-                Connection.Response res = con.execute();
-                Map<String, String> newCookies = res.cookies();
-                Document doc = res.parse();
+                        .cookie("JSESSIONID",jsess)
+                        .data("s-xuch", "pewdiepieduck", "org.apache.struts.taglib.html.TOKEN", vb);
+                res = con.execute();
+
+                con = Jsoup.connect("https://aspen.bsd405.org/aspen/home.do")
+                        .method(Connection.Method.GET)
+                        .userAgent("org.apache.struts.taglib.html.TOKEN")
+                        .cookie("JSESSIONID",jsess);
+                res = con.execute();
+                doc = res.parse();
             }
             catch(IOException e){
                 Log.d("Exception", e.toString());
@@ -159,10 +169,6 @@ public class Login extends Activity implements View.OnClickListener {
                 con.execute();
                 */
 
-                HttpsURLConnection connection = (HttpsURLConnection) new URL("https://aspen.bsd405.org/aspen/logon.do").openConnection();
-                connection.setRequestMethod("POST");
-                
-
                 return null;
             }
             catch(Exception e){
@@ -170,6 +176,8 @@ public class Login extends Activity implements View.OnClickListener {
                 return null;
             }
         }
+
+        //Probably useless...(Jsoup is just too good and this isn't that useful)
         private String getHTML(){
             try {
                 String output = "org.apache.struts.taglib.html.TOKEN=8c2cc97dcf02931f630ed3f77486e26b&userEvent=930&userParam=&operationId=&deploymentId=x2sis&scrollX=0&scrollY=0&formFocusField=username&mobile=false&SSOLoginDone=&username=" + "s-xuch" + "&password=" + "pewdiepieduck";
