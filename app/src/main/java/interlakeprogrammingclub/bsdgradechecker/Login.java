@@ -27,6 +27,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -114,32 +115,46 @@ public class Login extends Activity implements View.OnClickListener {
             spinner.setVisibility(View.VISIBLE);
         }
 
+
+        //Params[0] is username
+        //Params[1] is password
         @Override
         protected String doInBackground(String... params) {
             try {
+                //Get basic cookie data and login tokens from aspen
                 Connection con = Jsoup.connect("https://aspen.bsd405.org/aspen/logon.do")
                         .method(Connection.Method.GET)
                         .userAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.80 Safari/537.36");
                 Connection.Response res = con.execute();
                 Document doc = res.parse();
+                Map<String, String> formData = new HashMap<String, String>();
                 Map<String, String> cookies = res.cookies();
                 String vb = doc.getElementsByAttributeValue("name", "org.apache.struts.taglib.html.TOKEN").first().attr("value");
-
+                //Obtain jsessionid
                 String jsess = doc.getElementsByAttributeValueMatching("name", "logonForm").first().attr("action");
                 jsess = jsess.substring(jsess.indexOf("=")+1);
+                Elements form = doc.getElementsByTag("input");
+                for(int i = 0; i < form.size() - 3; i++ ){
+                    formData.put(form.get(i).attr("name"), form.get(i).attr("value"));
+                }
+
+                //Submit newfound data obtained in previous step
                 con = Jsoup.connect("https://aspen.bsd405.org/aspen/logon.do")
                         .method(Connection.Method.POST)
                         .userAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.80 Safari/537.36")
                         .cookie("JSESSIONID",jsess)
-                        .data("s-xuch", "pewdiepieduck", "org.apache.struts.taglib.html.TOKEN", vb);
+                        .data("username", "s-xuch", "password", "pewdiepieduck")
+                        .data(formData);
                 res = con.execute();
 
+                //Get homepage html data for future parsing
                 con = Jsoup.connect("https://aspen.bsd405.org/aspen/home.do")
                         .method(Connection.Method.GET)
                         .userAgent("org.apache.struts.taglib.html.TOKEN")
                         .cookie("JSESSIONID",jsess);
                 res = con.execute();
                 doc = res.parse();
+                
             }
             catch(IOException e){
                 Log.d("Exception", e.toString());
