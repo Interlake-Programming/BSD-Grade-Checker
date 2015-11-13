@@ -161,7 +161,6 @@ public class Login extends Activity implements View.OnClickListener {
             }
             return null;
         }
-
         @Override
         protected void onPostExecute(String result){
             spinner.setVisibility(View.GONE);
