@@ -101,13 +101,13 @@ public class Login extends Activity implements View.OnClickListener {
             }
             username = unameField.getText().toString();
             password = passwordField.getText().toString();
-            login(username,password);
+            login( username,password);
         }
     }
 
     //Not sure what to do here
     public void login(String uname, String pass){
-        new LoginProtocol().execute();
+        new LoginProtocol().execute(uname, pass);
     }
 
     private class LoginProtocol extends AsyncTask<String,Integer,String>{
@@ -149,12 +149,20 @@ public class Login extends Activity implements View.OnClickListener {
                 res = con.execute();
 
                 //Get homepage html data for future parsing
-                doc = Jsoup.connect("https://aspen.bsd405.org/aspen/portalClassList.do?navkey=academic.classes.list")
+                doc = Jsoup.connect("https://aspen.bsd405.org/aspen/portalClassList.do")
                         .method(Connection.Method.GET)
                         .userAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.80 Safari/537.36")
                         .cookie("JSESSIONID", jsess)
+                        .data("navkey", "academics.classes.list")
                         .execute().parse();
+                Document classesHTML = doc; //classesHTML has the html data of all the classes that the user takes, as well as their overall grade
 
+                /*
+                Future notes for people who might want to log into aspen (aka me)
+                    After you log in and are at the portalclasslist thing, there are more form elements
+                    You submit more form data based on the form elements in the html to get access to your class grades
+                    Once you get access, you gotta submit yet more form data with the get request to get the webpage you want (it is a navkey string)
+                 */
             }
             catch(IOException e){
                 Log.d("Exception", e.toString());
