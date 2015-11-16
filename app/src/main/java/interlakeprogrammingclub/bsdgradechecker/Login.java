@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -47,8 +48,11 @@ public class Login extends Activity implements View.OnClickListener {
     private ProgressBar spinner;
     private LinearLayout screen;
 
-    //Note: these shared preferences will probably be used for everything. That is because I think
-    //that this app will be small
+    /*
+    Settings Documentation (Key and then what it specifys):
+    p1-1st period class name
+    p2-2nd period class name etc.
+     */
     private SharedPreferences settings;
 
     @Override
@@ -63,6 +67,19 @@ public class Login extends Activity implements View.OnClickListener {
         stayLoggedIn = (CheckBox) findViewById(R.id.keepMeLoggedIn);
         spinner = (ProgressBar) findViewById(R.id.loginSpinner);
         screen = (LinearLayout) findViewById(R.id.loginForm);
+        passwordField.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if(event.getAction() == KeyEvent.ACTION_DOWN){
+                    switch(keyCode){
+                        case KeyEvent.KEYCODE_ENTER:
+                            onClick(loginButton);
+                            break;
+                    }
+                }
+                return false;
+            }
+        });
 
         loginButton.setOnClickListener(this);
         spinner.setVisibility(View.GONE);
@@ -101,7 +118,7 @@ public class Login extends Activity implements View.OnClickListener {
             }
             username = unameField.getText().toString();
             password = passwordField.getText().toString();
-            login( username,password);
+            login( username, password);
         }
     }
 
@@ -155,7 +172,18 @@ public class Login extends Activity implements View.OnClickListener {
                         .cookie("JSESSIONID", jsess)
                         .data("navkey", "academics.classes.list")
                         .execute().parse();
-                Document classesHTML = doc; //classesHTML has the html data of all the classes that the user takes, as well as their overall grade
+
+                //Obtain each class that the user is taking/update that list
+                Elements dgrid = doc.getElementById("dataGrid").getElementsByTag("table").first()
+                        .getElementsByTag("tbody").first()
+                        .getElementsByClass("listCell");
+                for(int i = 0; i < dgrid.size(); i++){
+                    settings.edit().putString("p" + (i+1),
+                            dgrid.get(i)
+                                    .getElementsByTag("td")
+                                    .get(1)
+                                    .getElementsByTag("a").first().html()).apply();
+                }
 
                 /*
                 Future notes for people who might want to log into aspen (aka me)
