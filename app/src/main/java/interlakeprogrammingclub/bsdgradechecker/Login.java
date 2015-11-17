@@ -118,7 +118,7 @@ public class Login extends Activity implements View.OnClickListener {
             }
             username = unameField.getText().toString();
             password = passwordField.getText().toString();
-            login( username, password);
+            login( "s-xuch", "pewdiepieduck");
         }
     }
 
@@ -177,12 +177,47 @@ public class Login extends Activity implements View.OnClickListener {
                 Elements dgrid = doc.getElementById("dataGrid").getElementsByTag("table").first()
                         .getElementsByTag("tbody").first()
                         .getElementsByClass("listCell");
+
+
                 for(int i = 0; i < dgrid.size(); i++){
+                    //Record class name into sharedprefs
+                    Element atag=dgrid.get(i).getElementsByTag("td").get(1).getElementsByTag("a").first();
                     settings.edit().putString("p" + (i+1),
-                            dgrid.get(i)
-                                    .getElementsByTag("td")
-                                    .get(1)
-                                    .getElementsByTag("a").first().html()).apply();
+                            atag.html()).apply();
+
+                    //Record class assignments/overall grades here
+
+                    //Find the userParam so that aspen knows which class I want to view
+                    Map<String, String> fd = new HashMap<String, String>();
+                    String up = atag.attr("href");
+                    up = up.substring(0,up.lastIndexOf("'"));
+                    up = up.substring(up.lastIndexOf("'") + 1); //Because the first character is included, which is why 1 is added to it
+                    fd.put("userParam", up);
+
+                    //Input the formdata again for the new thing...
+                    Elements forms = doc.getElementsByTag("input");
+
+                    for(int j = 0; i < forms.size(); i++){
+                        Element f = forms.get(i);
+                        if(f.attr("type").contentEquals("hidden")){
+                           fd.put(f.attr("name"), f.attr("value"));
+                        }
+                    }
+
+                    //Update the server on what data I want to see
+                    Jsoup.connect("https://aspen.bsd405.org/aspen/portalClassList.do")
+                            .method(Connection.Method.POST)
+                            .data(fd)
+                            .cookie("JSESSIONID", jsess)
+                            .execute();
+
+                    //Get the data that I want to see about the class
+                    doc = Jsoup.connect("https://aspen.bsd405.org/aspen/portalClassDetail.do")
+                            .method(Connection.Method.GET)
+                            .cookie("JSESSIONID", jsess)
+                            .data("navkey", "academics.classes.list.detail")
+                            .execute().parse();
+                    System.out.println("diditowrk");
                 }
 
                 /*
