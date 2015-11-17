@@ -118,7 +118,7 @@ public class Login extends Activity implements View.OnClickListener {
             }
             username = unameField.getText().toString();
             password = passwordField.getText().toString();
-            login( "s-xuch", "pewdiepieduck");
+            login(username, password);
         }
     }
 
@@ -217,7 +217,8 @@ public class Login extends Activity implements View.OnClickListener {
                             .cookie("JSESSIONID", jsess)
                             .data("navkey", "academics.classes.list.detail")
                             .execute().parse();
-                    System.out.println("diditowrk");
+                    //At this point in the code, the doc is the html of your grades in the period in which this loop is iterating on
+                    System.out.println("diditowrk");// This line is purely for debugging purposes, and has no value in the app at all.
                 }
 
                 /*
