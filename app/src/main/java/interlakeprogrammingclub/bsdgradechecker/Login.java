@@ -50,10 +50,11 @@ public class Login extends Activity implements View.OnClickListener {
     private LinearLayout screen;
 
     /*
-    Settings Documentation (Key and then what it specifys):
+    GradeData Documentation (Key and then what it specifys):
     p1-1st period class name
     p2-2nd period class name etc.
      */
+    private SharedPreferences gradeData;
     private SharedPreferences settings;
 
     @Override
@@ -86,8 +87,9 @@ public class Login extends Activity implements View.OnClickListener {
         spinner.setVisibility(View.GONE);
 
         settings = getSharedPreferences("settings", MODE_PRIVATE);
+        gradeData = getSharedPreferences("grades", MODE_PRIVATE);
         if(debugging)
-            settings.edit().clear().commit(); //PURELY FOR DEBUGGING!!! TAKE THIS OUT IF NOT DEBUGGING
+            gradeData.edit().clear().commit(); //PURELY FOR DEBUGGING!!! TAKE THIS OUT IF NOT DEBUGGING
     }
 
     @Override
@@ -115,13 +117,13 @@ public class Login extends Activity implements View.OnClickListener {
     @Override
     public void onClick(View v) {
         if(v == loginButton){
+            username = unameField.getText().toString();
+            password = passwordField.getText().toString();
+            login(username, password);
             if(stayLoggedIn.isChecked()){
                 settings.edit().putString("username",username);
                 settings.edit().putString("password",password);
             }
-            username = unameField.getText().toString();
-            password = passwordField.getText().toString();
-            login(username, password);
         }
     }
 
@@ -185,7 +187,7 @@ public class Login extends Activity implements View.OnClickListener {
                 for(int i = 0; i < dgrid.size(); i++){
                     //Record class name into sharedprefs
                     Element atag=dgrid.get(i).getElementsByTag("td").get(1).getElementsByTag("a").first();
-                    settings.edit().putString("p" + (i+1),
+                    gradeData.edit().putString("p" + (i+1),
                             atag.html()).apply();
 
                     //Record class assignments/overall grades here
@@ -222,9 +224,30 @@ public class Login extends Activity implements View.OnClickListener {
                             .execute().parse();
                     //At this point in the code, the doc is the html of your grades in the period in which this loop is iterating on
                     Elements datagrid = doc.getElementsByAttributeValue("id", "dataGrid");
-                    Element avgGrade = datagrid.get(1);
                     Element attendance = datagrid.get(0);
-                    pullAvgGrades(avgGrade, i); //Pull the average grades from the datatable with the id "dataGrid"
+                    pullAvgGrades(doc, i); //Pull the average grades from the datatable with the id "dataGrid"
+                    doc = Jsoup.connect("https://aspen.bsd405.org/aspen/portalAssignmentList.do")
+                            .method(Connection.Method.GET)
+                            .cookie("JSESSIONID", jsess)
+                            .data("navkey", "academics.classes.list.gcd")
+                            .execute().parse();
+                    fd.clear();
+                    forms = doc.getElementsByTag("input");
+                    for(int j = 0; j < forms.size(); j++){
+                        Element f = forms.get(j);
+                        if(f.attr("type").contentEquals("hidden")){
+                            fd.put(f.attr("name"), f.attr("value"));
+                        }
+                    }
+                    for(int j = 1; j <= 4; j++){
+                        doc = Jsoup.connect("https://aspen.bsd405.org/aspen/portalAssignmentList.do")
+                                .method(Connection.Method.POST)
+                                .cookie("JSESSIONID", jsess)
+                                .data("gradeTermOid", doc.getElementsContainingText("MP" + j).attr("value"))
+                                .data(fd)
+                                .execute().parse();
+                        //At this stage, doc is the html of the list of all your assignments in the jth quarter
+                    }
 
                     System.out.println("diditowrk");// This line is purely for debugging purposes, and has no value in the app at all.
                 }
@@ -244,31 +267,46 @@ public class Login extends Activity implements View.OnClickListener {
 
         /*
          * Pull average grades from that table when you click academics
-         * Notes: Doesn't pull "gradebook average" and "posted grade" just yet
+         * To my knowledge this part works fine
          */
-        private void pullAvgGrades(Element avgGradeTable, int i){
+        private void pullAvgGrades(Document doc, int i){
+            Element avgGradeTable = doc.getElementsByAttributeValue("id", "dataGrid").get(1);
             Elements categories = avgGradeTable.getElementsByClass("listCell");
-            for(int j = 0; j < categories.size(); j++){
-                settings.edit().putString("p" + (i+1) + " name " + j + "category",
+            for(int j = 0; j < categories.size() - 1/* I just happen to know that the last one is useless*/ ; j++){
+                gradeData.edit().putString("p" + (i+1) + " name " + j + "category",
                         categories.get(j).child(0).html()).apply();
-                settings.edit().putString("p" + (i+1) + " weight "+ j + "category",
+                gradeData.edit().putString("p" + (i+1) + " weight "+ j + "category",
                         categories.get(j).child(1).html()).apply();
-                settings.edit().putString("p" + (i+1) + " q1 "+ j + "category",
+                gradeData.edit().putString("p" + (i+1) + " q1 "+ j + "category",
                         categories.get(j).child(2).html()).apply();
-                settings.edit().putString("p" + (i+1) + " q2 "+ j + "category",
+                gradeData.edit().putString("p" + (i+1) + " q2 "+ j + "category",
                         categories.get(j).child(3).html()).apply();
-                settings.edit().putString("p" + (i+1) + " q3 "+ j + "category",
+                gradeData.edit().putString("p" + (i+1) + " q3 "+ j + "category",
                         categories.get(j).child(4).html()).apply();
-                settings.edit().putString("p" + (i+1) + " q4 "+ j + "category",
+                gradeData.edit().putString("p" + (i+1) + " q4 "+ j + "category",
                         categories.get(j).child(5).html()).apply();
             }
+
+            //Get quarter averages if not on previous table
             Elements es = avgGradeTable.getElementsByTag("tr");
             for(int j = 2; j < 6; j++) {
-                settings.edit().putString("p" + (i + 1) + " gradeBookAverageQ" + (j-1),
-                        es.get(es.size() - 2).child(j).html());
-                settings.edit().putString("p" + (i + 1) + " postedGradeQ" + (j-1),
-                        es.get(es.size() - 1).child(j).html());
+                gradeData.edit().putString("p" + (i + 1) + " gradeBookAverageQ" + (j-1),
+                        es.get(es.size() - 2).child(j).html()).apply();
+                gradeData.edit().putString("p" + (i + 1) + " postedGradeQ" + (j-1),
+                        es.get(es.size() - 1).child(j).html()).apply();
             }
+
+            //Get semester averages for grades
+            Element s1 = doc.getElementsContainingOwnText("Sem. 1 Current Grade").first();
+            gradeData.edit().putString("p" + (i+1) + " gradeBookAverageS1",
+                    s1.parent().child(1).html()).apply();
+            Element s2 = doc.getElementsContainingOwnText("Sem. 2 Current Grade").first();
+            gradeData.edit().putString("p" + (i+1) + " gradeBookAverageS2",
+                    s2.parent().child(1).html()).apply();
+        }
+
+        private void readAssignmentGrades(Document doc, int quarter){
+
         }
 
         /*
