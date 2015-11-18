@@ -38,6 +38,7 @@ import javax.net.ssl.HttpsURLConnection;
 
 public class Login extends Activity implements View.OnClickListener {
 
+    public boolean debugging = true;
     private String username;
     private String password;
 
@@ -70,8 +71,8 @@ public class Login extends Activity implements View.OnClickListener {
         passwordField.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
-                if(event.getAction() == KeyEvent.ACTION_DOWN){
-                    switch(keyCode){
+                if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                    switch (keyCode) {
                         case KeyEvent.KEYCODE_ENTER:
                             onClick(loginButton);
                             break;
@@ -85,6 +86,8 @@ public class Login extends Activity implements View.OnClickListener {
         spinner.setVisibility(View.GONE);
 
         settings = getSharedPreferences("settings", MODE_PRIVATE);
+        if(debugging)
+            settings.edit().clear().commit(); //PURELY FOR DEBUGGING!!! TAKE THIS OUT IF NOT DEBUGGING
     }
 
     @Override
@@ -197,8 +200,8 @@ public class Login extends Activity implements View.OnClickListener {
                     //Input the formdata again for the new thing...
                     Elements forms = doc.getElementsByTag("input");
 
-                    for(int j = 0; i < forms.size(); i++){
-                        Element f = forms.get(i);
+                    for(int j = 0; j < forms.size(); j++){
+                        Element f = forms.get(j);
                         if(f.attr("type").contentEquals("hidden")){
                            fd.put(f.attr("name"), f.attr("value"));
                         }
@@ -218,6 +221,11 @@ public class Login extends Activity implements View.OnClickListener {
                             .data("navkey", "academics.classes.list.detail")
                             .execute().parse();
                     //At this point in the code, the doc is the html of your grades in the period in which this loop is iterating on
+                    Elements datagrid = doc.getElementsByAttributeValue("id", "dataGrid");
+                    Element avgGrade = datagrid.get(1);
+                    Element attendance = datagrid.get(0);
+                    pullAvgGrades(avgGrade, i); //Pull the average grades from the datatable with the id "dataGrid"
+
                     System.out.println("diditowrk");// This line is purely for debugging purposes, and has no value in the app at all.
                 }
 
@@ -233,6 +241,40 @@ public class Login extends Activity implements View.OnClickListener {
             }
             return null;
         }
+
+        /*
+         * Pull average grades from that table when you click academics
+         * Notes: Doesn't pull "gradebook average" and "posted grade" just yet
+         */
+        private void pullAvgGrades(Element avgGradeTable, int i){
+            Elements categories = avgGradeTable.getElementsByClass("listCell");
+            for(int j = 0; j < categories.size(); j++){
+                settings.edit().putString("p" + (i+1) + " name " + j + "category",
+                        categories.get(j).child(0).html()).apply();
+                settings.edit().putString("p" + (i+1) + " weight "+ j + "category",
+                        categories.get(j).child(1).html()).apply();
+                settings.edit().putString("p" + (i+1) + " q1 "+ j + "category",
+                        categories.get(j).child(2).html()).apply();
+                settings.edit().putString("p" + (i+1) + " q2 "+ j + "category",
+                        categories.get(j).child(3).html()).apply();
+                settings.edit().putString("p" + (i+1) + " q3 "+ j + "category",
+                        categories.get(j).child(4).html()).apply();
+                settings.edit().putString("p" + (i+1) + " q4 "+ j + "category",
+                        categories.get(j).child(5).html()).apply();
+            }
+            Elements es = avgGradeTable.getElementsByTag("tr");
+            for(int j = 2; j < 6; j++) {
+                settings.edit().putString("p" + (i + 1) + " gradeBookAverageQ" + (j-1),
+                        es.get(es.size() - 2).child(j).html());
+                settings.edit().putString("p" + (i + 1) + " postedGradeQ" + (j-1),
+                        es.get(es.size() - 1).child(j).html());
+            }
+        }
+
+        /*
+         * Pull average semester grades from table...
+         */
+
         @Override
         protected void onPostExecute(String result){
             spinner.setVisibility(View.GONE);
