@@ -247,6 +247,27 @@ public class Login extends Activity implements View.OnClickListener {
                                 .data(fd)
                                 .execute().parse();
                         //At this stage, doc is the html of the list of all your assignments in the jth quarter
+                        Elements assignments = doc.getElementById("dataGrid").getElementsByClass("listCell");
+                        for(int k = 0; k < assignments.size(); k++){
+                            if(assignments.get(k).children().size() < 3){
+                                break;
+                            }
+                            gradeData.edit().putString("p" + (i + 1) + " assignment" + k + " name q" + j,
+                                    assignments.get(k).getElementsByTag("td").get(1).child(0).html()).apply();
+                            gradeData.edit().putString("p" + (i + 1) + " assignment" + k + " category q" + j,
+                                    assignments.get(k).getElementsByTag("td").get(2).html()).apply();
+                            gradeData.edit().putString("p" + (i + 1) + " assignment" + k + " startdate q" + j,
+                                    assignments.get(k).getElementsByTag("td").get(3).html()).apply();
+                            gradeData.edit().putString("p" + (i + 1) + " assignment" + k + " endDate q" + j,
+                                    assignments.get(k).getElementsByTag("td").get(4).html()).apply();
+                            Elements asdf = assignments.get(k).getElementsByTag("td");
+                            Element buffer = assignments.get(k).getElementsByTag("td").get(5)
+                                    .getElementsByTag("td").get(1);
+                            gradeData.edit().putString("p" + (i + 1) + " assignment" + k + " score q" + j,
+                                    assignments.get(k).getElementsByTag("td").get(7).html()).apply();
+                            gradeData.edit().putString("p" + (i+1) + " assignment" + k + " feedBack q" + j,
+                                    assignments.get(k).getElementsByTag("td").last().html()).apply();
+                        }
                     }
 
                     System.out.println("diditowrk");// This line is purely for debugging purposes, and has no value in the app at all.
