@@ -162,13 +162,12 @@ public class Login extends Activity implements View.OnClickListener {
                 }
 
                 //Submit newfound data obtained in previous step
-                con = Jsoup.connect("https://aspen.bsd405.org/aspen/logon.do")
+                Jsoup.connect("https://aspen.bsd405.org/aspen/logon.do")
                         .method(Connection.Method.POST)
                         .userAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.80 Safari/537.36")
                         .cookie("JSESSIONID",jsess)
                         .data("username", params[0], "password", params[1])
                         .data(formData);
-                res = con.execute();
 
                 //Get homepage html data for future parsing
                 doc = Jsoup.connect("https://aspen.bsd405.org/aspen/portalClassList.do")
@@ -260,9 +259,6 @@ public class Login extends Activity implements View.OnClickListener {
                                     assignments.get(k).getElementsByTag("td").get(3).html()).apply();
                             gradeData.edit().putString("p" + (i + 1) + " assignment" + k + " endDate q" + j,
                                     assignments.get(k).getElementsByTag("td").get(4).html()).apply();
-                            Elements asdf = assignments.get(k).getElementsByTag("td");
-                            Element buffer = assignments.get(k).getElementsByTag("td").get(5)
-                                    .getElementsByTag("td").get(1);
                             gradeData.edit().putString("p" + (i + 1) + " assignment" + k + " score q" + j,
                                     assignments.get(k).getElementsByTag("td").get(7).html()).apply();
                             gradeData.edit().putString("p" + (i+1) + " assignment" + k + " feedBack q" + j,
@@ -325,14 +321,6 @@ public class Login extends Activity implements View.OnClickListener {
             gradeData.edit().putString("p" + (i+1) + " gradeBookAverageS2",
                     s2.parent().child(1).html()).apply();
         }
-
-        private void readAssignmentGrades(Document doc, int quarter){
-
-        }
-
-        /*
-         * Pull average semester grades from table...
-         */
 
         @Override
         protected void onPostExecute(String result){
