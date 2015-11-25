@@ -31,37 +31,6 @@ public class GradesViewerActivity extends FragmentActivity {
         viewPager = (ViewPager) findViewById(R.id.avgGradeViewerPager);
         viewPager.setAdapter(gradeAdapter);
 
-        // Create a tab listener that is called when the user changes tabs.
-        ActionBar.TabListener tabListener = new ActionBar.TabListener() {
-            public void onTabSelected(ActionBar.Tab tab, FragmentTransaction ft) {
-                viewPager.setCurrentItem(tab.getPosition());
-            }
-
-            public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction ft) {
-            }
-
-            public void onTabReselected(ActionBar.Tab tab, FragmentTransaction ft) {
-            }
-        };
-
-        final ActionBar bar = getActionBar();
-        bar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-        bar.addTab(bar.newTab().setText("Semester 1")/*.setTabListener(tabListener)*/);
-        bar.addTab(bar.newTab().setText("Semester 2").setTabListener(tabListener));
-        viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-            }
-
-            @Override
-            public void onPageSelected(int position) {
-                getActionBar().setSelectedNavigationItem(position);
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-            }
-        });
     }
 
     private static class GradesAdapter extends FragmentPagerAdapter{
