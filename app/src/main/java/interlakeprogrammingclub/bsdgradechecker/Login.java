@@ -112,7 +112,7 @@ public class Login extends Activity implements View.OnClickListener {
         if(v == loginButton){
             username = unameField.getText().toString();
             password = passwordField.getText().toString();
-            login( "s-xuch","pewdiepieduck");
+            login( uname, password);
             if(stayLoggedIn.isChecked()){
                 settings.edit().putString("username",username);
                 settings.edit().putString("password",password);
