@@ -147,15 +147,12 @@ public class Login extends Activity implements View.OnClickListener {
                         .userAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.80 Safari/537.36");
                 Connection.Response res = con.execute();
                 Document doc = res.parse();
-                Map<String, String> formData = new HashMap<String, String>();
+
+                Map<String, String> formData = getFormData(doc);
 
                 //Obtain jsessionid
                 String jsess = doc.getElementsByAttributeValueMatching("name", "logonForm").first().attr("action");
                 jsess = jsess.substring(jsess.indexOf("=")+1);
-                Elements form = doc.getElementsByTag("input");
-                for(int i = 0; i < form.size() - 3; i++ ){
-                    formData.put(form.get(i).attr("name"), form.get(i).attr("value"));
-                }
 
                 //Submit newfound data obtained in previous step
                 Jsoup.connect("https://aspen.bsd405.org/aspen/logon.do")
@@ -163,7 +160,15 @@ public class Login extends Activity implements View.OnClickListener {
                         .userAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.80 Safari/537.36")
                         .cookie("JSESSIONID",jsess)
                         .data("username", params[0], "password", params[1])
-                        .data(formData);
+                        .data(formData).execute();
+
+                //Test whether or not jsessionid works
+                Jsoup.connect("https://aspen.bsd405.org/aspen/home.do")
+                        .method(Connection.Method.GET)
+                        .userAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.80 Safari/537.36")
+                        .cookie("JSESSIONID",jsess)
+                        .execute().parse();
+
 
                 //Get homepage html data for future parsing
                 doc = Jsoup.connect("https://aspen.bsd405.org/aspen/portalClassList.do?navkey=academics.classes.list")
@@ -291,12 +296,15 @@ public class Login extends Activity implements View.OnClickListener {
                         categories.get(j).child(1).html()).apply();
                 gradeData.edit().putString("p" + (i+1) + " q1 "+ j + "category",
                         categories.get(j).child(2).html()).apply();
+
+                /* I'm not sure if they will add two semesters later, so this code is only commented
                 gradeData.edit().putString("p" + (i+1) + " q2 "+ j + "category",
                         categories.get(j).child(3).html()).apply();
                 gradeData.edit().putString("p" + (i+1) + " q3 "+ j + "category",
                         categories.get(j).child(4).html()).apply();
                 gradeData.edit().putString("p" + (i+1) + " q4 "+ j + "category",
                         categories.get(j).child(5).html()).apply();
+                        */
             }
 
             //Get quarter averages if not on previous table
@@ -317,6 +325,19 @@ public class Login extends Activity implements View.OnClickListener {
                     s2.parent().child(1).html()).apply();
         }
 
+        private Map<String, String> getFormData(final Document doc){
+            Map<String, String> fd = new HashMap<String, String>();
+            Elements forms = doc.getElementsByTag("input");
+
+            for(int j = 0; j < forms.size(); j++){
+                Element f = forms.get(j);
+                if(f.attr("type").contentEquals("hidden")){
+                    fd.put(f.attr("name"), f.attr("value"));
+                }
+            }
+
+            return fd;
+        }
         @Override
         protected void onPostExecute(String result){
             spinner.setVisibility(View.GONE);
