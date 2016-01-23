@@ -112,7 +112,7 @@ public class Login extends Activity implements View.OnClickListener {
         if(v == loginButton){
             username = unameField.getText().toString();
             password = passwordField.getText().toString();
-            login(username, password);
+            login( "s-xuch","pewdiepieduck");
             if(stayLoggedIn.isChecked()){
                 settings.edit().putString("username",username);
                 settings.edit().putString("password",password);
@@ -148,8 +148,7 @@ public class Login extends Activity implements View.OnClickListener {
                 Connection.Response res = con.execute();
                 Document doc = res.parse();
                 Map<String, String> formData = new HashMap<String, String>();
-                Map<String, String> cookies = res.cookies();
-                String vb = doc.getElementsByAttributeValue("name", "org.apache.struts.taglib.html.TOKEN").first().attr("value");
+
                 //Obtain jsessionid
                 String jsess = doc.getElementsByAttributeValueMatching("name", "logonForm").first().attr("action");
                 jsess = jsess.substring(jsess.indexOf("=")+1);
@@ -167,11 +166,10 @@ public class Login extends Activity implements View.OnClickListener {
                         .data(formData);
 
                 //Get homepage html data for future parsing
-                doc = Jsoup.connect("https://aspen.bsd405.org/aspen/portalClassList.do")
+                doc = Jsoup.connect("https://aspen.bsd405.org/aspen/portalClassList.do?navkey=academics.classes.list")
                         .method(Connection.Method.GET)
                         .userAgent("Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.80 Safari/537.36")
                         .cookie("JSESSIONID", jsess)
-                        .data("navkey", "academics.classes.list")
                         .execute().parse();
 
                 //Obtain each class that the user is taking/update that list
