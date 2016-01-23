@@ -245,6 +245,8 @@ public class Login extends Activity implements View.OnClickListener {
                                 .data("gradeTermOid", doc.getElementsContainingText("MP" + j).attr("value"))
                                 .data(fd)
                                 .execute().parse();
+
+                        
                         //At this stage, doc is the html of the list of all your assignments in the jth quarter
                         Elements assignments = doc.getElementById("dataGrid").getElementsByClass("listCell");
                         for(int k = 0; k < assignments.size(); k++){
@@ -307,6 +309,7 @@ public class Login extends Activity implements View.OnClickListener {
                         */
             }
 
+            /* Note: This section of code is irrelevant now that aspen has a cumulative grade, and not semester grades
             //Get quarter averages if not on previous table
             Elements es = avgGradeTable.getElementsByTag("tr");
             for(int j = 2; j < 6; j++) {
@@ -323,6 +326,7 @@ public class Login extends Activity implements View.OnClickListener {
             Element s2 = doc.getElementsContainingOwnText("Sem. 2 Current Grade").first();
             gradeData.edit().putString("p" + (i+1) + " gradeBookAverageS2",
                     s2.parent().child(1).html()).apply();
+            */
         }
 
         private Map<String, String> getFormData(final Document doc){
