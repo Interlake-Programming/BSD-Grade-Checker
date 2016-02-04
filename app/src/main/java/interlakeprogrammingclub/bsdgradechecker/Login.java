@@ -14,6 +14,7 @@ import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
@@ -37,8 +38,9 @@ public class Login extends Activity implements View.OnClickListener {
 
     private EditText unameField;
     private EditText passwordField;
-    private Button loginButton;
-    private CheckBox stayLoggedIn;
+    private ImageButton loginButton;
+
+
     private ProgressBar spinner;
     private LinearLayout screen;
 
@@ -55,34 +57,17 @@ public class Login extends Activity implements View.OnClickListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        //Initialize the views that we will use
-        unameField = (EditText) findViewById(R.id.unameField);
-        passwordField = (EditText) findViewById(R.id.passwordField);
-        loginButton = (Button) findViewById(R.id.loginButton);
-        stayLoggedIn = (CheckBox) findViewById(R.id.keepMeLoggedIn);
+
+        loginButton = (ImageButton) findViewById(R.id.loginButton);
         spinner = (ProgressBar) findViewById(R.id.loginSpinner);
         screen = (LinearLayout) findViewById(R.id.loginForm);
-        passwordField.setOnKeyListener(new View.OnKeyListener() {
-            @Override
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                if (event.getAction() == KeyEvent.ACTION_DOWN) {
-                    switch (keyCode) {
-                        case KeyEvent.KEYCODE_ENTER:
-                            onClick(loginButton);
-                            break;
-                    }
-                }
-                return false;
-            }
-        });
 
         loginButton.setOnClickListener(this);
         spinner.setVisibility(View.GONE);
 
         settings = getSharedPreferences("settings", MODE_PRIVATE);
         gradeData = getSharedPreferences("grades", MODE_PRIVATE);
-        if(debugging)
-            gradeData.edit().clear().commit(); //PURELY FOR DEBUGGING!!! TAKE THIS OUT IF NOT DEBUGGING
+
     }
 
     @Override
@@ -110,13 +95,11 @@ public class Login extends Activity implements View.OnClickListener {
     @Override
     public void onClick(View v) {
         if(v == loginButton){
-            username = unameField.getText().toString();
-            password = passwordField.getText().toString();
-            login( uname, password);
-            if(stayLoggedIn.isChecked()){
+            login( username, password);
+
                 settings.edit().putString("username",username);
                 settings.edit().putString("password",password);
-            }
+
         }
     }
 
@@ -153,6 +136,9 @@ public class Login extends Activity implements View.OnClickListener {
                 //Obtain jsessionid
                 String jsess = doc.getElementsByAttributeValueMatching("name", "logonForm").first().attr("action");
                 jsess = jsess.substring(jsess.indexOf("=")+1);
+                gradeData.edit().putString("jsess",
+                        jsess).apply();
+
 
                 //Submit newfound data obtained in previous step
                 Jsoup.connect("https://aspen.bsd405.org/aspen/logon.do")
@@ -186,89 +172,28 @@ public class Login extends Activity implements View.OnClickListener {
                 for(int i = 0; i < dgrid.size(); i++){
                     //Record class name into sharedprefs
                     Element atag=dgrid.get(i).getElementsByTag("td").get(1).getElementsByTag("a").first();
-                    gradeData.edit().putString("p" + (i+1),
+                    String href=atag.attr("href");
+
+                    String key=href.substring(href.indexOf("SS"),href.length()-2);
+                    gradeData.edit().putString("k" + (i+1),
+                            ""+key).apply();
+                    gradeData.edit().putString("p" + (i + 1),
                             atag.html()).apply();
 
-                    //Record class assignments/overall grades here
+                    Element grade=dgrid.get(i).getElementsByTag("td").get(7).getElementsByTag("div").first();
+                    if(grade!=null){
+                        String avg=grade.html().substring(46);
+                        Log.d("lol", avg);
+                        gradeData.edit().putString("g" + (i+1),
+                                avg).apply();
 
-                    //Find the userParam so that aspen knows which class I want to view
-                    Map<String, String> fd = new HashMap<String, String>();
-                    String up = atag.attr("href");
-                    up = up.substring(0,up.lastIndexOf("'"));
-                    up = up.substring(up.lastIndexOf("'") + 1); //Because the first character is included, which is why 1 is added to it
-                    fd.put("userParam", up);
-
-                    //Input the formdata again for the new thing...
-                    Elements forms = doc.getElementsByTag("input");
-
-                    for(int j = 0; j < forms.size(); j++){
-                        Element f = forms.get(j);
-                        if(f.attr("type").contentEquals("hidden")){
-                           fd.put(f.attr("name"), f.attr("value"));
-                        }
+                    }
+                    else{
+                        gradeData.edit().putString("g" + (i+1),
+                                "").apply();
                     }
 
-                    //Update the server on what data I want to see
-                    Jsoup.connect("https://aspen.bsd405.org/aspen/portalClassList.do")
-                            .method(Connection.Method.POST)
-                            .data(fd)
-                            .cookie("JSESSIONID", jsess)
-                            .execute();
 
-                    //Get the data that I want to see about the class
-                    doc = Jsoup.connect("https://aspen.bsd405.org/aspen/portalClassDetail.do")
-                            .method(Connection.Method.GET)
-                            .cookie("JSESSIONID", jsess)
-                            .data("navkey", "academics.classes.list.detail")
-                            .execute().parse();
-                    //At this point in the code, the doc is the html of your grades in the period in which this loop is iterating on
-                    Elements datagrid = doc.getElementsByAttributeValue("id", "dataGrid");
-                    Element attendance = datagrid.get(0);
-                    pullAvgGrades(doc, i); //Pull the average grades from the datatable with the id "dataGrid"
-                    doc = Jsoup.connect("https://aspen.bsd405.org/aspen/portalAssignmentList.do")
-                            .method(Connection.Method.GET)
-                            .cookie("JSESSIONID", jsess)
-                            .data("navkey", "academics.classes.list.gcd")
-                            .execute().parse();
-                    fd.clear();
-                    forms = doc.getElementsByTag("input");
-                    for(int j = 0; j < forms.size(); j++){
-                        Element f = forms.get(j);
-                        if(f.attr("type").contentEquals("hidden")){
-                            fd.put(f.attr("name"), f.attr("value"));
-                        }
-                    }
-                    for(int j = 1; j <= 4; j++){
-                        doc = Jsoup.connect("https://aspen.bsd405.org/aspen/portalAssignmentList.do")
-                                .method(Connection.Method.POST)
-                                .cookie("JSESSIONID", jsess)
-                                .data("gradeTermOid", doc.getElementsContainingText("MP" + j).attr("value"))
-                                .data(fd)
-                                .execute().parse();
-
-                        
-                        //At this stage, doc is the html of the list of all your assignments in the jth quarter
-                        Elements assignments = doc.getElementById("dataGrid").getElementsByClass("listCell");
-                        for(int k = 0; k < assignments.size(); k++){
-                            if(assignments.get(k).children().size() < 3){
-                                break;
-                            }
-                            gradeData.edit().putString("p" + (i + 1) + " assignment" + k + " name q" + j,
-                                    assignments.get(k).getElementsByTag("td").get(1).child(0).html()).apply();
-                            gradeData.edit().putString("p" + (i + 1) + " assignment" + k + " category q" + j,
-                                    assignments.get(k).getElementsByTag("td").get(2).html()).apply();
-                            gradeData.edit().putString("p" + (i + 1) + " assignment" + k + " startdate q" + j,
-                                    assignments.get(k).getElementsByTag("td").get(3).html()).apply();
-                            gradeData.edit().putString("p" + (i + 1) + " assignment" + k + " endDate q" + j,
-                                    assignments.get(k).getElementsByTag("td").get(4).html()).apply();
-                            gradeData.edit().putString("p" + (i + 1) + " assignment" + k + " score q" + j,
-                                    assignments.get(k).getElementsByTag("td").get(7).html()).apply();
-                            gradeData.edit().putString("p" + (i+1) + " assignment" + k + " feedBack q" + j,
-                                    assignments.get(k).getElementsByTag("td").last().html()).apply();
-                        }
-                    }
-
-                    System.out.println("diditowrk");// This line is purely for debugging purposes, and has no value in the app at all.
                 }
 
                 /*
@@ -289,44 +214,7 @@ public class Login extends Activity implements View.OnClickListener {
          * To my knowledge this part works fine
          */
         private void pullAvgGrades(Document doc, int i){
-            Element avgGradeTable = doc.getElementsByAttributeValue("id", "dataGrid").get(1);
-            Elements categories = avgGradeTable.getElementsByClass("listCell");
-            for(int j = 0; j < categories.size() - 1/* I just happen to know that the last one is useless*/ ; j++){
-                gradeData.edit().putString("p" + (i+1) + " name " + j + "category",
-                        categories.get(j).child(0).html()).apply();
-                gradeData.edit().putString("p" + (i+1) + " weight "+ j + "category",
-                        categories.get(j).child(1).html()).apply();
-                gradeData.edit().putString("p" + (i+1) + " q1 "+ j + "category",
-                        categories.get(j).child(2).html()).apply();
 
-                /* I'm not sure if they will add two semesters later, so this code is only commented
-                gradeData.edit().putString("p" + (i+1) + " q2 "+ j + "category",
-                        categories.get(j).child(3).html()).apply();
-                gradeData.edit().putString("p" + (i+1) + " q3 "+ j + "category",
-                        categories.get(j).child(4).html()).apply();
-                gradeData.edit().putString("p" + (i+1) + " q4 "+ j + "category",
-                        categories.get(j).child(5).html()).apply();
-                        */
-            }
-
-            /* Note: This section of code is irrelevant now that aspen has a cumulative grade, and not semester grades
-            //Get quarter averages if not on previous table
-            Elements es = avgGradeTable.getElementsByTag("tr");
-            for(int j = 2; j < 6; j++) {
-                gradeData.edit().putString("p" + (i + 1) + " gradeBookAverageQ" + (j-1),
-                        es.get(es.size() - 2).child(j).html()).apply();
-                gradeData.edit().putString("p" + (i + 1) + " postedGradeQ" + (j-1),
-                        es.get(es.size() - 1).child(j).html()).apply();
-            }
-
-            //Get semester averages for grades
-            Element s1 = doc.getElementsContainingOwnText("Sem. 1 Current Grade").first();
-            gradeData.edit().putString("p" + (i+1) + " gradeBookAverageS1",
-                    s1.parent().child(1).html()).apply();
-            Element s2 = doc.getElementsContainingOwnText("Sem. 2 Current Grade").first();
-            gradeData.edit().putString("p" + (i+1) + " gradeBookAverageS2",
-                    s2.parent().child(1).html()).apply();
-            */
         }
 
         private Map<String, String> getFormData(final Document doc){
