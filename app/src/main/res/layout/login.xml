@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#2f3f92"
+    android:id="@+id/tgt">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:layout_centerInParent="true"
+        android:orientation="vertical"
+        android:background="#61b3cc"
+        android:id="@+id/loginForm"
+        >
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="LOG IN"
+            android:textStyle="bold"
+            android:textSize="40dp"
+            android:paddingLeft="6dp"
+            android:paddingTop="20dp"
+            />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="Aspen Grade Checker"
+            android:paddingLeft="6dp"
+            android:paddingTop="-6dp"
+            android:layout_margin="6dp"
+            android:paddingRight="6dp"
+            android:paddingBottom="6dp"
+            android:textSize="13dp" />
+        <EditText
+            android:layout_width="233dp"
+            android:layout_height="wrap_content"
+            android:hint="Student ID"
+            android:id="@+id/unameField" />
+        android:layout_margin="6dp"
+        android:textSize="13dp" />
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Password"
+            android:password="true"
+            android:id="@+id/passwordField" /><![CDATA[
+        android:layout_margin="6dp"
+        android:textSize="13dp" />
+
+        android:textSize="13dp"
+        android:layout_margin="6dp"
+        android:checked="false" />
+
+        ]]>
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Continue"
+            android:layout_margin="6dp"
+            android:gravity="right"
+            style="?android:attr/borderlessButtonStyle"
+            android:id="@+id/loginButton"
+            android:layout_below="@+id/linearLayout"
+            android:layout_alignLeft="@+id/linearLayout"
+            android:layout_alignStart="@+id/linearLayout"
+            android:textSize="15dp"
+            android:onClick="onClick" />
+
+    </LinearLayout>
+
+    <ProgressBar
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/loginSpinner" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Re-Login"
+        android:id="@+id/loginButton2"
+        android:layout_below="@+id/loginForm"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="33dp"
+        android:visibility="visible"
+        android:background="#3092de"
+        android:onClick="onClick" />
+
+
+</RelativeLayout>

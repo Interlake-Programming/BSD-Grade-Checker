@@ -36,13 +36,16 @@ public class Login extends Activity implements View.OnClickListener {
     private String username;
     private String password;
 
+
     private EditText unameField;
     private EditText passwordField;
-    private ImageButton loginButton;
+    private Button loginButton;
+    private Button loginButton2;
 
 
     private ProgressBar spinner;
     private LinearLayout screen;
+
 
     /*
     GradeData Documentation (Key and then what it specifys):
@@ -55,17 +58,39 @@ public class Login extends Activity implements View.OnClickListener {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
 
 
-        loginButton = (ImageButton) findViewById(R.id.loginButton);
+            setContentView(R.layout.login);
+
+        settings = getSharedPreferences("settings", MODE_PRIVATE);
+        loginButton = (Button) findViewById(R.id.loginButton);
+        loginButton2 = (Button) findViewById(R.id.loginButton2);
+        String s=settings.getString("staylogged", null);
+        if(settings.getString("staylogged", null)==(null)||!settings.getString("staylogged", null).equals("y")){
+            Log.d("cool", "cool");
+            loginButton2.setVisibility(View.GONE);
+        }
+
+
+
+
+
+            unameField = (EditText) findViewById(R.id.unameField);
+            passwordField = (EditText) findViewById(R.id.passwordField);
+
+
+
+
+
+
+
         spinner = (ProgressBar) findViewById(R.id.loginSpinner);
         screen = (LinearLayout) findViewById(R.id.loginForm);
 
         loginButton.setOnClickListener(this);
         spinner.setVisibility(View.GONE);
 
-        settings = getSharedPreferences("settings", MODE_PRIVATE);
+
         gradeData = getSharedPreferences("grades", MODE_PRIVATE);
 
     }
@@ -95,11 +120,24 @@ public class Login extends Activity implements View.OnClickListener {
     @Override
     public void onClick(View v) {
         if(v == loginButton){
-            login( username, password);
+            unameField = (EditText) findViewById(R.id.unameField);
+            passwordField = (EditText) findViewById(R.id.passwordField);
+            username=unameField.getText().toString();
+            password=passwordField.getText().toString();
+            settings.edit().putString("staylogged", "y").apply();
 
-                settings.edit().putString("username",username);
-                settings.edit().putString("password",password);
+                settings.edit().putString("username",username).apply();
+                settings.edit().putString("password",password).apply();
 
+
+            login(username, password);
+
+
+        }
+        else if(v == loginButton2){
+            username=settings.getString("username", null);
+            password=settings.getString("password", null);
+            login(username, password);
         }
     }
 
@@ -164,14 +202,12 @@ public class Login extends Activity implements View.OnClickListener {
                         .execute().parse();
 
                 //Obtain each class that the user is taking/update that list
-                Elements dgrid = doc.getElementById("dataGrid").getElementsByTag("table").first()
-                        .getElementsByTag("tbody").first()
-                        .getElementsByClass("listCell");
+                Elements dgrid = doc.select("#dataGrid > table > tbody > .listCell");
 
 
                 for(int i = 0; i < dgrid.size(); i++){
                     //Record class name into sharedprefs
-                    Element atag=dgrid.get(i).getElementsByTag("td").get(1).getElementsByTag("a").first();
+                    Element atag = dgrid.get(i).select("td.pointer > a").first();
                     String href=atag.attr("href");
 
                     String key=href.substring(href.indexOf("SS"),href.length()-2);
@@ -180,7 +216,7 @@ public class Login extends Activity implements View.OnClickListener {
                     gradeData.edit().putString("p" + (i + 1),
                             atag.html()).apply();
 
-                    Element grade=dgrid.get(i).getElementsByTag("td").get(7).getElementsByTag("div").first();
+                    Element grade = dgrid.get(i).select("td:nth-child(6) > div").first();
                     if(grade!=null){
                         String avg=grade.html().substring(46);
                         Log.d("lol", avg);
@@ -219,7 +255,7 @@ public class Login extends Activity implements View.OnClickListener {
 
         private Map<String, String> getFormData(final Document doc){
             Map<String, String> fd = new HashMap<String, String>();
-            Elements forms = doc.getElementsByTag("input");
+            Elements forms = doc.select("input");
 
             for(int j = 0; j < forms.size(); j++){
                 Element f = forms.get(j);
