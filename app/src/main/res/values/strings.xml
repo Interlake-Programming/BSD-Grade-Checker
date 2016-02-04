@@ -2,4 +2,6 @@
     <string name="app_name">BSD Grade Checker</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_grades_viewer">GradesViewerActivity</string>
+    <string name="title_activity_assign_viewer">AssignViewerActivity</string>
+    <string name="title_activity_main">MainActivity</string>
 </resources>
