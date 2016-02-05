@@ -100,7 +100,7 @@ public class Login extends Activity implements View.OnClickListener {
             login( username, password);
 
                 settings.edit().putString("username",username);
-                settings.edit().putString("password",password);
+                settings.edit().putString("password", password);
 
         }
     }
@@ -166,14 +166,12 @@ public class Login extends Activity implements View.OnClickListener {
                         .execute().parse();
 
                 //Obtain each class that the user is taking/update that list
-                Elements dgrid = doc.getElementById("dataGrid").getElementsByTag("table").first()
-                        .getElementsByTag("tbody").first()
-                        .getElementsByClass("listCell");
+                Elements dgrid = doc.select("#dataGrid > table > tbody > .listCell");
 
 
                 for(int i = 0; i < dgrid.size(); i++){
                     //Record class name into sharedprefs
-                    Element atag=dgrid.get(i).getElementsByTag("td").get(1).getElementsByTag("a").first();
+                    Element atag = dgrid.get(i).select("td.pointer > a").first();
                     String href=atag.attr("href");
 
                     String key=href.substring(href.indexOf("SS"),href.length()-2);
@@ -182,7 +180,7 @@ public class Login extends Activity implements View.OnClickListener {
                     gradeData.edit().putString("p" + (i + 1),
                             atag.html()).apply();
 
-                    Element grade=dgrid.get(i).getElementsByTag("td").get(7).getElementsByTag("div").first();
+                    Element grade = dgrid.get(i).select("td:nth-child(6) > div").first();
                     if(grade!=null){
                         String avg=grade.html().substring(46);
                         Log.d("lol", avg);
@@ -221,7 +219,7 @@ public class Login extends Activity implements View.OnClickListener {
 
         private Map<String, String> getFormData(final Document doc){
             Map<String, String> fd = new HashMap<String, String>();
-            Elements forms = doc.getElementsByTag("input");
+            Elements forms = doc.select("input");
 
             for(int j = 0; j < forms.size(); j++){
                 Element f = forms.get(j);
